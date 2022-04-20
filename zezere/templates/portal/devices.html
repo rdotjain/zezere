@@ -5,37 +5,56 @@
 {% block title %}Device list{% endblock %}
 
 {% block content %}
-Your devices:
-<table border="1">
-    <tr>
-        <th>Mac Address</th>
-        <th>Hostname</th>
-        <th>Run Request</th>
-        <th>Actions</th>
-    </tr>
-    {% for device in devices %}
-        {% has_perm 'zezere.view_device' user device as can_view_device %}
-        {% if can_view_device %}
+<h1>Your devices:</h1>
+<hr/>
+{% if not devices %}
+    <h3> No claimed devices</h3>
+{% else %}
+<div class="container-fluid">
+    <table border="1" class="table">
+        <thead>
             <tr>
-                <td>{{ device.mac_address }}</td>
-                <td>{{ device.hostname }}</td>
-                <td>
-                    {% if device.run_request %}
-                        {{ device.run_request }}
-                    {% endif %}
-                </td>
-                <td>
-                    {% if device.run_request %}
-                        <form method="POST" action="/portal/devices/runreq/{{ device.mac_address }}/clean/">
-                            {% csrf_token %}
-                            <input type="submit" value="Cancel runrequest">
-                        </form>
-                    {% else %}
-                        <a href="/portal/devices/runreq/{{ device.mac_address }}">Submit provision request</a>
-                    {% endif %}
-                </td>
+                <th>Mac Address</th>
+                <th>Hostname</th>
+                <th>Run Request</th>
+                <th>Actions</th>
+                <th></th>
             </tr>
-        {% endif %}
-    {% endfor %}
-</table>
+        </thead>
+        <tbody>
+            {% for device in devices %}
+                {% has_perm 'zezere.view_device' user device as can_view_device %}
+                {% if can_view_device %}
+                    <tr>
+                        <td class="align-items-center">{{ device.mac_address }}</td>
+                        <td>{{ device.hostname }}</td>
+                        <td>
+                            {% if device.run_request %}
+                                {{ device.run_request }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if device.run_request %}
+                                <form method="POST" action="/portal/devices/runreq/{{ device.mac_address }}/clean/">
+                                    {% csrf_token %}
+                                    <input class="btn btn-warning" type="submit" value="Cancel runrequest">
+                                </form>
+                            {% else %}
+                                <a class="btn btn-primary" href="/portal/devices/runreq/{{ device.mac_address }}">Submit provision request</a>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <form method="POST" action="/portal/devices/delete/">
+                                {% csrf_token %}
+                                <input type="hidden" name="device_id" value="{{ device.id }}">
+                                <input class ="btn btn-danger" type="submit" value="Remove Device">
+                            </form>
+                        </td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
 {% endblock %}

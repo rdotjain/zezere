@@ -38,6 +38,19 @@ def claim(request):
 
 
 @login_required
+@require_POST
+def unclaim(request):
+    device_id = request.POST.get("device_id")
+    device = get_object_or_404(Device, id=device_id)
+    if not request.user.has_perm(Device.get_perm("delete"), device):
+        raise PermissionDenied()
+
+    device.owner = None
+    device.save()
+    return redirect("/portal/devices/")
+
+
+@login_required
 def devices(request):
     devices = Device.objects.filter(owner=request.user)
     return render(request, "portal/devices.html", {"devices": devices})

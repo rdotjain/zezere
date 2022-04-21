@@ -6,20 +6,42 @@
 
 {% block content %}
 {% if super %}
-Unowned devices:
+<h1>Unowned devices:</h1>
 {% else %}
-Unowned devices from this IP address:
+<h1>Unowned devices from this IP address:</h1>
 {% endif %}
-{% for device in unclaimed_devices %}
-    {% has_perm 'zezere.claim_device' user device as can_claim_device %}
-    {% if can_claim_device %}
-        <form method="POST">
-            MAC address: {{ device.mac_address }}
-            {% csrf_token %}
-            <input type="hidden" name="mac_address" value="{{ device.mac_address }}">
-            <input type="submit" value="Claim">
-        </form>
-        <br />
-    {% endif %}
-{% endfor %}
+<div class="container-fluid">
+    <table border="1" class="table">
+        <thead>
+            <tr>
+                <th>Mac Address</th>
+                <th colspan="2">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for device in unclaimed_devices %}
+                {% has_perm 'zezere.claim_device' user device as can_claim_device %}
+                {% if can_claim_device %}
+                    <tr>
+                        <td>{{ device.mac_address }}</td>
+                        <td>
+                            <form method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="mac_address" value="{{ device.mac_address }}">
+                                <input class="btn btn-primary btn-sm" type="submit" value="Claim">
+                            </form>
+                        </td>
+                        <td>
+                            <form method="POST" action="/portal/claim/remove/">
+                                {% csrf_token %}
+                                <input type="hidden" name="device_id" value="{{ device.id }}">
+                                <input class ="btn btn-danger btn-sm" type="submit" value="Remove">
+                            </form>
+                        </td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+        </tbody>    
+    </table>
+</div>
 {% endblock %}

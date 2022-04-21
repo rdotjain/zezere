@@ -39,6 +39,18 @@ def claim(request):
 
 @login_required
 @require_POST
+def remove_unclaimed(request):
+    device_id = request.POST.get("device_id")
+    device = get_object_or_404(Device, id=device_id)
+    if not request.user.has_perm(Device.get_perm("remove_unclaimed"), device):
+        raise PermissionDenied()
+
+    device.delete()
+    return redirect("/portal/claim/")
+
+
+@login_required
+@require_POST
 def unclaim(request):
     device_id = request.POST.get("device_id")
     device = get_object_or_404(Device, id=device_id)

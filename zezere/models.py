@@ -158,6 +158,7 @@ class Device(RulesModel):
             "delete": rules.owns_device,
             "provision": rules.owns_device,
             "claim": rules.can_claim,
+            "remove_unclaimed": rules.can_claim,
         }
 
     def __str__(self):

@@ -1,3 +1,5 @@
+import requests
+
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.http import Http404, HttpResponseBadRequest
@@ -104,3 +106,25 @@ def add_ssh_key(request):
     key.full_clean()
     key.save()
     return redirect("portal_sshkeys")
+
+
+@login_required
+def ov(request):
+    return render(request, "portal/ownership_voucher.html")
+
+
+@login_required
+@require_POST
+def add_ov(request):
+    ov = request.POST["ov"].strip()
+    url = "http://localhost:8081/management/v1/ownership_voucher"
+    headers = {"X-Number-Of-Vouchers": "1", "Content-Type": "application/x-pem-file"}
+
+    response = requests.request("POST", url, headers=headers, data=ov)
+
+    if response.status_code == 201:
+        message = "Successfully added ownership voucher"
+    else:
+        message = "Failed to add ownership voucher"
+
+    return render(request, "portal/ownership_voucher.html", {"message": message})

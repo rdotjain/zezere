@@ -1,0 +1,20 @@
+{% extends "./master.html" %}
+
+{% load rules %}
+
+{% block title %}Add Voucher{% endblock %}
+
+{% block content %}
+
+{% if message %}
+<div class="alert alert-success">{{ message }}</div>
+{% endif %}
+
+Add a new ownership voucher:
+<form method="POST" action="/portal/ov/add/">
+    {% csrf_token %}
+    <textarea name="ov"></textarea> <br>
+    <input type="submit" value="Add voucher">
+</form>
+
+{% endblock %}

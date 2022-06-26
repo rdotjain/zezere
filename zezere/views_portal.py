@@ -116,11 +116,25 @@ def ov(request):
 @login_required
 @require_POST
 def add_ov(request):
-    ov = request.POST["ov"].strip()
-    url = "http://localhost:8081/management/v1/ownership_voucher"
-    headers = {"X-Number-Of-Vouchers": "1", "Content-Type": "application/x-pem-file"}
+    payload = None
+    if request.POST["ov"]:
+        ov = request.POST["ov"].strip()
+        content_type = "application/x-pem-file"
+        payload = ov
+    elif request.FILES:
+        ov_file = request.FILES["ov_file"]
+        content_type = "application/cbor"
+        payload = ov_file.read()
+    else:
+        return redirect("portal_ov")
 
-    response = requests.request("POST", url, headers=headers, data=ov)
+    url = "http://localhost:8081/management/v1/ownership_voucher"
+    headers = {
+        "X-Number-Of-Vouchers": "1",
+        "Content-Type": content_type,
+        "Authorization": "Bearer",
+    }
+    response = requests.request("POST", url, headers=headers, data=payload)
 
     if response.status_code == 201:
         message = "Successfully added ownership voucher"

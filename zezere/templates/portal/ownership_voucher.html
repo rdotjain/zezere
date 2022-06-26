@@ -11,10 +11,13 @@
 {% endif %}
 
 Add a new ownership voucher:
-<form method="POST" action="/portal/ov/add/">
+<form method="POST" action="/portal/ov/add/" enctype="multipart/form-data">
     {% csrf_token %}
     <textarea name="ov"></textarea> <br>
-    <input type="submit" value="Add voucher">
+    OR <br>
+    Upload a CBOR encoded voucher: <br>
+    <input type="file" name="ov_file"> <br>
+    <input type="submit" value="Add voucher"> <br>
 </form>
 
 {% endblock %}

@@ -1,6 +1,7 @@
 import requests
 
 from django.core.exceptions import PermissionDenied
+from django.contrib import messages
 from django.db import transaction
 from django.http import Http404, HttpResponseBadRequest
 from django.shortcuts import render, get_object_or_404, redirect
@@ -126,6 +127,7 @@ def add_ov(request):
         content_type = "application/cbor"
         payload = ov_file.read()
     else:
+        messages.error(request, "No ownership voucher provided")
         return redirect("portal_ov")
 
     url = "http://localhost:8081/management/v1/ownership_voucher"
@@ -137,8 +139,9 @@ def add_ov(request):
     response = requests.request("POST", url, headers=headers, data=payload)
 
     if response.status_code == 201:
-        message = "Successfully added ownership voucher"
+        messages.success(request, "Ownership voucher added")
     else:
-        message = "Failed to add ownership voucher"
+        error_code = response.json()["error_code"]
+        messages.error(request, "Error adding ownership voucher: {}".format(error_code))
 
-    return render(request, "portal/ownership_voucher.html", {"message": message})
+    return redirect("portal_ov")

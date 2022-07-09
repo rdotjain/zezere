@@ -16,7 +16,7 @@ from zezere.models import Device, RunRequest, device_getter, SSHKey
 
 @login_required
 def index(request):
-    return render(request, "portal/index.html")
+    return render(request, "portal/index.html", {"nbar": "portal"})
 
 
 @login_required
@@ -36,14 +36,20 @@ def claim(request):
     else:
         remote_ip, _ = get_client_ip(request)
         unclaimed = Device.objects.filter(owner__isnull=True, last_ip_address=remote_ip)
-    context = {"unclaimed_devices": unclaimed, "super": request.user.is_superuser}
+    context = {
+        "unclaimed_devices": unclaimed,
+        "super": request.user.is_superuser,
+        "nbar": "claim",
+    }
     return render(request, "portal/claim.html", context)
 
 
 @login_required
 def devices(request):
     devices = Device.objects.filter(owner=request.user)
-    return render(request, "portal/devices.html", {"devices": devices})
+    return render(
+        request, "portal/devices.html", {"devices": devices, "nbar": "devices"}
+    )
 
 
 @permission_required(Device.get_perm("provision"), fn=device_getter)
@@ -82,7 +88,9 @@ def clean_runreq(request, mac_addr):
 @login_required
 def sshkeys(request):
     sshkeys = SSHKey.objects.filter(owner=request.user)
-    return render(request, "portal/sshkeys.html", {"sshkeys": sshkeys})
+    return render(
+        request, "portal/sshkeys.html", {"sshkeys": sshkeys, "nbar": "sshkeys"}
+    )
 
 
 @login_required
@@ -111,7 +119,7 @@ def add_ssh_key(request):
 
 @login_required
 def ov(request):
-    return render(request, "portal/ownership_voucher.html")
+    return render(request, "portal/ownership_voucher.html", {"nbar": "ov"})
 
 
 @login_required
@@ -119,7 +127,7 @@ def ov(request):
 def add_ov(request):
     payload = None
     no_of_vouchers = request.POST["no_of_vouchers"]
-    
+
     if request.POST.get("ov"):
         content_type = "application/x-pem-file"
         payload = request.POST["ov"].strip()

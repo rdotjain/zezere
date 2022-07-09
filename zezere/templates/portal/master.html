@@ -44,19 +44,19 @@
         </ul>
         <ul class="nav navbar-nav navbar-primary">
         {% if user.is_authenticated %}
-            <li class="active">
-              <a href="/portal" class="active">Home</a>
+            <li class="{% if nbar == 'portal' %}active{% endif %}">
+              <a href="/portal">Home</a>
             </li>
-            <li>
+            <li class="{% if nbar == 'claim' %}active{% endif %}">
               <a href="/portal/claim">Claim Unowned Devices</a>
             </li>
-            <li>
+            <li class="{% if nbar == 'sshkeys' %}active{% endif %}">
               <a href="/portal/sshkeys">SSH Key Management</a>
             </li>
-            <li>
+            <li class="{% if nbar == 'devices' %}active{% endif %}">
               <a href="/portal/devices">Device Management</a>
             </li>
-            <li>
+            <li class="{% if nbar == 'ov' %}active{% endif %}">
               <a href="/portal/ov">Add Ownership Voucher</a>
             </li>
         {% else %}

@@ -147,12 +147,17 @@ def add_ov(request):
         "Content-Type": content_type,
         "Authorization": "Bearer",
     }
-    response = requests.request("POST", url, headers=headers, data=payload)
+    
+    try:
+        response = requests.request("POST", url, headers=headers, data=payload)
+    except requests.exceptions.RequestException as e:
+        messages.error(request, "Error while adding ownership voucher: {}".format(e))
+        return redirect("portal_ov")
 
     if response.status_code == 201:
         messages.success(request, "Ownership voucher added")
     else:
-        error_code = response.json()["error_code"]
+        error_code = response.json().get("error_code")
         messages.error(request, "Error adding ownership voucher: {}".format(error_code))
 
     return redirect("portal_ov")

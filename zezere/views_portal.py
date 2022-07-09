@@ -118,21 +118,24 @@ def ov(request):
 @require_POST
 def add_ov(request):
     payload = None
-    if request.POST["ov"]:
-        ov = request.POST["ov"].strip()
+    no_of_vouchers = request.POST["no_of_vouchers"]
+    
+    if request.POST.get("ov"):
         content_type = "application/x-pem-file"
-        payload = ov
-    elif request.FILES:
-        ov_file = request.FILES["ov_file"]
+        payload = request.POST["ov"].strip()
+    elif request.FILES.getlist("ov_file"):
         content_type = "application/cbor"
-        payload = ov_file.read()
+        files = request.FILES.getlist("ov_file")
+        payload = files[0].read()
+        for f in files[1:]:
+            payload += f.read()
     else:
         messages.error(request, "No ownership voucher provided")
         return redirect("portal_ov")
 
     url = "http://localhost:8081/management/v1/ownership_voucher"
     headers = {
-        "X-Number-Of-Vouchers": "1",
+        "X-Number-Of-Vouchers": no_of_vouchers,
         "Content-Type": content_type,
         "Authorization": "Bearer",
     }

@@ -12,6 +12,7 @@ from rules.contrib.views import permission_required
 from ipware import get_client_ip
 
 from zezere.models import Device, RunRequest, device_getter, SSHKey
+from zezere.settings import OV_BASE_URL
 
 
 @login_required
@@ -141,13 +142,13 @@ def add_ov(request):
         messages.error(request, "No ownership voucher provided")
         return redirect("portal_ov")
 
-    url = "http://localhost:8081/management/v1/ownership_voucher"
+    url = OV_BASE_URL
     headers = {
         "X-Number-Of-Vouchers": no_of_vouchers,
         "Content-Type": content_type,
         "Authorization": "Bearer",
     }
-    
+
     try:
         response = requests.request("POST", url, headers=headers, data=payload)
     except requests.exceptions.RequestException as e:

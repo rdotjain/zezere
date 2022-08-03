@@ -1,0 +1,26 @@
+{% extends "./master.html" %}
+
+{% load rules %}
+
+{% block title %}Add Voucher{% endblock %}
+
+{% block content %}
+
+{% if messages %}
+    {% for message in messages %}
+    <div{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</div>
+    {% endfor %}
+{% endif %}
+
+Add a new ownership voucher:
+<form method="POST" action="/portal/ov/add/" enctype="multipart/form-data">
+    {% csrf_token %}
+    Enter the number of vouchers: <input type="number" name="no_of_vouchers" required> <br> <br>
+    Enter your voucher contents:<br>
+    <textarea name="ov" rows="10" cols="50" ></textarea> <br> <br>
+    OR <br> <br>
+    Upload a CBOR encoded voucher: <input type="file" name="ov_file" multiple> <br><br>
+    <input type="submit" class="btn btn-primary btn-sm" value="Add voucher"> <br>
+</form>
+
+{% endblock %}

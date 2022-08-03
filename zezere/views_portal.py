@@ -1,4 +1,7 @@
+import requests
+
 from django.core.exceptions import PermissionDenied
+from django.contrib import messages
 from django.db import transaction
 from django.http import Http404, HttpResponseBadRequest
 from django.shortcuts import render, get_object_or_404, redirect
@@ -9,11 +12,12 @@ from rules.contrib.views import permission_required
 from ipware import get_client_ip
 
 from zezere.models import Device, RunRequest, device_getter, SSHKey
+from zezere.settings import OV_BASE_URL
 
 
 @login_required
 def index(request):
-    return render(request, "portal/index.html")
+    return render(request, "portal/index.html", {"nbar": "portal"})
 
 
 @login_required
@@ -33,14 +37,20 @@ def claim(request):
     else:
         remote_ip, _ = get_client_ip(request)
         unclaimed = Device.objects.filter(owner__isnull=True, last_ip_address=remote_ip)
-    context = {"unclaimed_devices": unclaimed, "super": request.user.is_superuser}
+    context = {
+        "unclaimed_devices": unclaimed,
+        "super": request.user.is_superuser,
+        "nbar": "claim",
+    }
     return render(request, "portal/claim.html", context)
 
 
 @login_required
 def devices(request):
     devices = Device.objects.filter(owner=request.user)
-    return render(request, "portal/devices.html", {"devices": devices})
+    return render(
+        request, "portal/devices.html", {"devices": devices, "nbar": "devices"}
+    )
 
 
 @permission_required(Device.get_perm("provision"), fn=device_getter)
@@ -79,7 +89,9 @@ def clean_runreq(request, mac_addr):
 @login_required
 def sshkeys(request):
     sshkeys = SSHKey.objects.filter(owner=request.user)
-    return render(request, "portal/sshkeys.html", {"sshkeys": sshkeys})
+    return render(
+        request, "portal/sshkeys.html", {"sshkeys": sshkeys, "nbar": "sshkeys"}
+    )
 
 
 @login_required
@@ -104,3 +116,49 @@ def add_ssh_key(request):
     key.full_clean()
     key.save()
     return redirect("portal_sshkeys")
+
+
+@login_required
+def ov(request):
+    return render(request, "portal/ownership_voucher.html", {"nbar": "ov"})
+
+
+@login_required
+@require_POST
+def add_ov(request):
+    payload = None
+    no_of_vouchers = request.POST["no_of_vouchers"]
+
+    if request.POST.get("ov"):
+        content_type = "application/x-pem-file"
+        payload = request.POST["ov"].strip()
+    elif request.FILES.getlist("ov_file"):
+        content_type = "application/cbor"
+        files = request.FILES.getlist("ov_file")
+        payload = files[0].read()
+        for f in files[1:]:
+            payload += f.read()
+    else:
+        messages.error(request, "No ownership voucher provided")
+        return redirect("portal_ov")
+
+    url = OV_BASE_URL
+    headers = {
+        "X-Number-Of-Vouchers": no_of_vouchers,
+        "Content-Type": content_type,
+        "Authorization": "Bearer",
+    }
+
+    try:
+        response = requests.request("POST", url, headers=headers, data=payload)
+    except requests.exceptions.RequestException as e:
+        messages.error(request, "Error while adding ownership voucher: {}".format(e))
+        return redirect("portal_ov")
+
+    if response.status_code == 201:
+        messages.success(request, "Ownership voucher added")
+    else:
+        error_code = response.json().get("error_code")
+        messages.error(request, "Error adding ownership voucher: {}".format(error_code))
+
+    return redirect("portal_ov")

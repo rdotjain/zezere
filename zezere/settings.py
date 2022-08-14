@@ -170,5 +170,3 @@ MESSAGE_TAGS = {
     messages.WARNING: "alert-warning",
     messages.ERROR: "alert-danger",
 }
-
-OV_BASE_URL = get("global", "ov_base_url", "OV_BASE_URL")

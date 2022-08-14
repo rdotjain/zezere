@@ -11,8 +11,7 @@ from django.views.decorators.http import require_POST
 from rules.contrib.views import permission_required
 from ipware import get_client_ip
 
-from zezere.models import Device, RunRequest, device_getter, SSHKey
-from zezere.settings import OV_BASE_URL
+from zezere.models import Device, RunRequest, device_getter, SSHKey, Config
 
 
 @login_required
@@ -126,6 +125,9 @@ def ov(request):
 @login_required
 @require_POST
 def add_ov(request):
+    OV_BASE_URL = Config.objects.get(owner=request.user).ov_base_url
+    AUTH_TOKEN = Config.objects.get(owner=request.user).auth_token
+
     payload = None
     no_of_vouchers = request.POST["no_of_vouchers"]
 
@@ -146,7 +148,7 @@ def add_ov(request):
     headers = {
         "X-Number-Of-Vouchers": no_of_vouchers,
         "Content-Type": content_type,
-        "Authorization": "Bearer",
+        "Authorization": f"Bearer {AUTH_TOKEN}",
     }
 
     try:
@@ -162,3 +164,32 @@ def add_ov(request):
         messages.error(request, "Error adding ownership voucher: {}".format(error_code))
 
     return redirect("portal_ov")
+
+
+@login_required
+def configure(request):
+    if request.method == "GET":
+        config = Config.objects.filter(owner=request.user).first()
+        auth_token = config.auth_token if config else ""
+        ov_base_url = config.ov_base_url if config else ""
+        return render(
+            request,
+            "portal/configure.html",
+            {"auth_token": auth_token, "ov_base_url": ov_base_url},
+        )
+    elif request.method == "POST":
+        auth_token = request.POST.get("auth_token")
+        ov_base_url = request.POST.get("ov_base_url")
+        owner = request.user
+        if not auth_token or not ov_base_url:
+            messages.error(request, "Please fill in all fields")
+            return redirect("portal_configure")
+
+        config = Config.objects.filter(owner=owner).first()
+        if config is None:
+            config = Config(owner=owner)
+        config.auth_token = auth_token
+        config.ov_base_url = ov_base_url
+        config.save()
+        messages.success(request, "Configuration saved")
+        return redirect("portal_configure")

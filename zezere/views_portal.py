@@ -11,7 +11,7 @@ from django.views.decorators.http import require_POST
 from rules.contrib.views import permission_required
 from ipware import get_client_ip
 
-from zezere.models import Device, RunRequest, device_getter, SSHKey, Config
+from zezere.models import Device, RunRequest, device_getter, SSHKey, FDOConfig
 
 
 @login_required
@@ -125,8 +125,8 @@ def ov(request):
 @login_required
 @require_POST
 def add_ov(request):
-    OV_BASE_URL = Config.objects.get(owner=request.user).ov_base_url
-    AUTH_TOKEN = Config.objects.get(owner=request.user).auth_token
+    OV_BASE_URL = FDOConfig.objects.get(owner=request.user).ov_base_url
+    AUTH_TOKEN = FDOConfig.objects.get(owner=request.user).auth_token
 
     payload = None
     no_of_vouchers = request.POST["no_of_vouchers"]
@@ -169,7 +169,7 @@ def add_ov(request):
 @login_required
 def configure(request):
     if request.method == "GET":
-        config = Config.objects.filter(owner=request.user).first()
+        config = FDOConfig.objects.filter(owner=request.user).first()
         auth_token = config.auth_token if config else ""
         ov_base_url = config.ov_base_url if config else ""
         return render(
@@ -185,9 +185,9 @@ def configure(request):
             messages.error(request, "Please fill in all fields")
             return redirect("portal_configure")
 
-        config = Config.objects.filter(owner=owner).first()
+        config =FDOConfig.objects.filter(owner=owner).first()
         if config is None:
-            config = Config(owner=owner)
+            config = FDOConfig(owner=owner)
         config.auth_token = auth_token
         config.ov_base_url = ov_base_url
         config.save()

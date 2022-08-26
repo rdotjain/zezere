@@ -210,7 +210,7 @@ class UnownedDeviceSerializer(serializers.HyperlinkedModelSerializer):
         fields = ["mac_address"]
 
 
-class Config(models.Model):
+class FDOConfig(models.Model):
     owner = models.ForeignKey(
         User, on_delete=models.PROTECT, default=None, blank=True, null=True
     )

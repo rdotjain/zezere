@@ -43,6 +43,7 @@ urlpatterns = [
     path("portal/ov/", views_portal.ov, name="portal_ov"),
     path("portal/ov/add/", views_portal.add_ov, name="portal_ov_add"),
     # path("portal/ov/delete/", views_portal.remove_ov, name="portal_ov_remove"),
+    path("portal/configure/", views_portal.configure, name="portal_configure"),
     # API
     path("api/", include(router.urls), name="apis"),
     path(

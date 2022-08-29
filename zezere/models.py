@@ -208,3 +208,14 @@ class UnownedDeviceSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Device
         fields = ["mac_address"]
+
+
+class FDOConfig(models.Model):
+    owner = models.ForeignKey(
+        User, on_delete=models.PROTECT, default=None, blank=True, null=True
+    )
+    auth_token = models.CharField(max_length=255, default="")
+    ov_base_url = models.URLField(max_length=255, default="")
+
+    def __str__(self):
+        return "configuration for %s" % self.owner

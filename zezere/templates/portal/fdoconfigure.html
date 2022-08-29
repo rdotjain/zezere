@@ -1,0 +1,25 @@
+{% extends "./master.html" %}
+
+ {% load rules %}
+
+ {% block title %}Add Voucher{% endblock %}
+
+ {% block content %}
+
+ {% if messages %}
+     {% for message in messages %}
+     <div{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</div>
+     {% endfor %}
+ {% endif %}
+
+ <h3>Your Configuration:</h3>
+ <form method="POST" action="/portal/configure/">
+     {% csrf_token %}
+     Enter the Authentication token: <br>
+     <input type="text" name="auth_token" value="{{ auth_token }}" /> <br> <br>
+     Enter your OV Management Server URL: <br>
+     <input type="text" name="ov_base_url" value="{{ ov_base_url }}" /> <br> <br>
+     <input type="submit" class="btn btn-primary btn-sm" value="Done"> <br>
+ </form>
+
+ {% endblock %}

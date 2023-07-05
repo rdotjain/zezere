@@ -34,6 +34,13 @@ Your devices:
                         <a href="/portal/devices/runreq/{{ device.mac_address }}">Submit provision request</a>
                     {% endif %}
                 </td>
+                <td>
+                    <form method="POST" action="/portal/devices/delete/">
+                        {% csrf_token %}
+                        <input type="hidden" name="device_id" value="{{ device.id }}">
+                        <input type="submit" value="Remove Device">
+                    </form>
+                </td>
             </tr>
         {% endif %}
     {% endfor %}

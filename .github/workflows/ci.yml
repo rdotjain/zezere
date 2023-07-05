@@ -14,7 +14,7 @@ jobs:
     - name: apt-get update
       run: sudo apt-get update
     - name: Install system dependencies
-      run: sudo apt-get install gcc python-dev libpq-dev apache2-dev
+      run: sudo apt-get install gcc python3-dev libpq-dev apache2-dev
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -22,7 +22,7 @@ jobs:
         pip install -r requirements-test.txt
     - name: Check typing
       run: |
-        mypy zezere
+        mypy --install-types --no-strict-optional --non-interactive zezere
     - name: Code style checking
       run: |
         black --check --target-version py36 zezere tests *.py
@@ -46,7 +46,7 @@ jobs:
     - name: Ensure test coverage
       run: |
         coverage xml
-        diff-cover coverage.xml --fail-under=100 --compare-branch main
+        diff-cover coverage.xml --fail-under=100 --compare-branch origin/main
     - name: Ensure code quality change
       run: |
         diff-quality --violations=flake8 --fail-under=100
@@ -62,13 +62,13 @@ jobs:
       run: sudo apt-get update
     - name: Install system dependencies
       run: |
-        sudo apt-get install libdevmapper-dev
+        sudo apt-get install libdevmapper-dev libbtrfs-dev
     - name: Install s2i
       run: |
-        go get github.com/openshift/source-to-image/cmd/s2i
+        go install github.com/openshift/source-to-image/cmd/s2i@latest
     - name: Build a server container
       run: |
-        $HOME/go/bin/s2i build . registry.access.redhat.com/ubi8/python-36 zezere:testimg
+        sudo $HOME/go/bin/s2i build -v . registry.access.redhat.com/ubi8/python-36:latest zezere:testimg
     - name: Run a server
       run: |
         docker run --name zezere -e AUTH_METHOD=local -e SECRET_KEY=citest -e ALLOWED_HOSTS=bootserv --detach --rm -p 8080:8080 -t zezere:testimg

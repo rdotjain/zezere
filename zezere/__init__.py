@@ -57,7 +57,7 @@ def download_netboot_files(destroot=None):  # pragma: no cover
         if not os.path.exists(destfile):
             Path(destdir).mkdir(parents=True, exist_ok=True)
 
-            with requests.get(url, stream=True) as dlf:
+            with requests.get(url, stream=True, timeout=5) as dlf:
                 dlf.raise_for_status()
                 with open(destfile, "wb") as f:
                     for chunk in dlf.iter_content(chunk_size=8192):

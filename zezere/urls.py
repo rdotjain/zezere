@@ -22,7 +22,17 @@ urlpatterns = [
     # Portal
     path("portal/", views_portal.index, name="portal_index"),
     path("portal/claim/", views_portal.claim, name="portal_claim"),
+    path(
+        "portal/claim/remove/",
+        views_portal.remove_unclaimed,
+        name="portal_remove_unclamed",
+    ),
     path("portal/devices/", views_portal.devices, name="portal_devices"),
+    path(
+        "portal/devices/delete/",
+        views_portal.unclaim,
+        name="portal_unclaim_device",
+    ),
     path(
         "portal/devices/runreq/<str:mac_addr>/",
         views_portal.new_runreq,

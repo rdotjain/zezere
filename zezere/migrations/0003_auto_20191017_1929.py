@@ -6,7 +6,6 @@ import zezere.runreqs
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("zezere", "0002_runrequest_auto_generated_id")]
 
     operations = [

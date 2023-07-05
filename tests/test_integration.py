@@ -189,7 +189,7 @@ class IntegrationTest(TestCase):
 
         # Just checking that the server is available
         resp = requests.get(
-            "http://%s:8080/" % bootserv_ip, headers={"Host": "bootserv"}
+            "http://%s:8080/" % bootserv_ip, headers={"Host": "bootserv"}, timeout=5
         )
         resp.raise_for_status()
 

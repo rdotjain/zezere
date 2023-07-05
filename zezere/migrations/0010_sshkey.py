@@ -7,7 +7,6 @@ import rules.contrib.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ("zezere", "0009_auto_20200106_0905"),

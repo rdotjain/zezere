@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [("zezere", "0008_runrequest_raw_settings")]
 
     operations = [

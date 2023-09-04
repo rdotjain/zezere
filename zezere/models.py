@@ -187,7 +187,6 @@ class Device(RulesModel):
     )
 
     def get_ignition_config(self, request: HttpRequest) -> ignconfig.IgnitionConfig:
-
         cfgobj = ignconfig.IgnitionConfig()
 
         # Add owner SSH keys to root

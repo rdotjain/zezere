@@ -35,7 +35,6 @@ def render_for_device(
     content_type: str = None,
     status: int = None,
 ) -> HttpResponse:
-
     content = loader.render_to_string(template_name, context, request)
 
     # Make replacements

@@ -63,12 +63,9 @@ jobs:
     - name: Install system dependencies
       run: |
         sudo apt-get install libdevmapper-dev libbtrfs-dev
-    - name: Install s2i
-      run: |
-        go install github.com/openshift/source-to-image/cmd/s2i@latest
     - name: Build a server container
       run: |
-        sudo $HOME/go/bin/s2i build -v . registry.access.redhat.com/ubi8/python-36:latest zezere:testimg
+        docker build -t zezere:testimg .
     - name: Run a server
       run: |
         docker run --name zezere -e AUTH_METHOD=local -e SECRET_KEY=citest -e ALLOWED_HOSTS=bootserv --detach --rm -p 8080:8080 -t zezere:testimg
